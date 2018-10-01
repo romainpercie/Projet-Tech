@@ -1,12 +1,20 @@
-from math import *
-from turtle import *
+import numpy as np
 
-map = [[0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0]]
+map = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])
 
-start = (0,0)
-end = (2,5)
+start = (3,3)
+end = (6,12)
 
 
 class Noeud:
@@ -31,37 +39,33 @@ def A_star(map, start, end):
     
 
     while len(liste_ouverte) > 0:
+
+        
         
         noeud_actuel = liste_fermee[-1]
         liste_enfant = []
+
+        if noeud_actuel.position == noeud_end.position:
+              break
         
         for enfant in [(0,1),(1,0),(-1,0),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)]:
             
             nouv_pos = (enfant[0] + noeud_actuel.position[0], enfant[1] + noeud_actuel.position[1])
-##            print(nouv_pos)
-##            while 1:
-##                lettre = input()
-##               if lettre == "q":
-##                    break
 
             #est en dehors de la map
             if nouv_pos[0]<0 or nouv_pos[1]<0 or nouv_pos[0]>=len(map) or nouv_pos[1]>=len(map[0]):
                 continue
+            
             #est un obstacle
             if map[nouv_pos[0]][nouv_pos[1]] == 1:
                 continue
 
             nouv_noeud = Noeud(noeud_actuel,nouv_pos)
-            nouv_noeud.g = noeud_actuel.g + 1
+            nouv_noeud.g = noeud_actuel.g + (noeud_actuel.position[0] - nouv_pos[0])**2 + (noeud_actuel.position[1] - nouv_pos[1])**2
             nouv_noeud.h = (noeud_end.position[0] - nouv_noeud.position[0])**2 + (noeud_end.position[1] - nouv_noeud.position[1])**2
             nouv_noeud.f = nouv_noeud.g + nouv_noeud.h
 
             liste_enfant.append(nouv_noeud)
-            print(liste_enfant)
-##            while 1:
-##                lettre = input()
-##                if lettre == "q":
-##                    break
 
         for enfant in liste_enfant:
 
@@ -79,28 +83,26 @@ def A_star(map, start, end):
 
         maximum = liste_ouverte[0].f
         meilleur_noeud = liste_ouverte[0]
+
         for i in liste_ouverte:
             if i.f < maximum:
-                meilleur_element = i
+                meilleur_noeud = i
                 maximum = i.f
 
         liste_ouverte.remove(meilleur_noeud)
         liste_fermee.append(meilleur_noeud)
 
-        if noeud_actuel.position == noeud_end.position:
-              break
 
-
+        
     liste_fermee.reverse()    
     parent = liste_fermee[0]
-    print(parent.position)
-    
+        
     for path in liste_fermee:
-        if path.parent == parent:
-            parent = path
-            print(path.position)
+        if path == parent:
+            parent = path.parent
+            map[path.position[0]][path.position[1]] = 2
 
-    return "fin"
+    return print(map)
 
             
                                                                                                 
