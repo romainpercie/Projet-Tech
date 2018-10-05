@@ -1,13 +1,13 @@
 import numpy as np
 
-map = np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],
-       [0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0],
-       [0,1,1,1,1,1,0,0,1,0,0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-       [0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+map = np.array([[0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+       [0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0],
+       [0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0],
+       [0,1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,0,1,1,1,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0],
+       [0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,0,0],
        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
@@ -65,22 +65,26 @@ def A_star(map, start, end):
             nouv_noeud.h = (noeud_end.position[0] - nouv_noeud.position[0])**2 + (noeud_end.position[1] - nouv_noeud.position[1])**2
             nouv_noeud.f = nouv_noeud.g + nouv_noeud.h
 
-            liste_enfant.append(nouv_noeud)
-
-        for enfant in liste_enfant:
+            #On ne garde pas un noeud qui a la même position et le même parent qu'un noeud de la liste fermée
+            est_dans_liste_fermee = False
 
             for n in liste_fermee:
-                if enfant.position == n.position:
-                    continue
+                if nouv_noeud.parent != None and n.parent != None :
+                    if nouv_noeud.parent.position == n.parent.position and nouv_noeud.position == n.position:
+                        est_dans_liste_fermee = True
+                        
+            if not(est_dans_liste_fermee):
+                liste_enfant.append(nouv_noeud)
+
+        for enfant in liste_enfant:            
 
             for m in liste_ouverte:
-                if m.position == nouv_noeud.position and nouv_noeud.f < n.f:
+                if m.position == enfant.position and enfant.f < m.f:
                     liste_ouverte.remove(m)
-                if m.position == nouv_noeud.position and nouv_noeud.f > n.f:
-                    continue
 
             liste_ouverte.append(enfant)
 
+        #On sélectionne le meilleur noeud de la liste ouverte pour le mettre dans la liste fermée
         maximum = liste_ouverte[0].f
         meilleur_noeud = liste_ouverte[0]
 
@@ -92,10 +96,11 @@ def A_star(map, start, end):
         liste_ouverte.remove(meilleur_noeud)
         liste_fermee.append(meilleur_noeud)
 
-
-        
     liste_fermee.reverse()    
     parent = liste_fermee[0]
+
+    if parent.position != end:
+        return "Pas de chemin possible"
         
     for path in liste_fermee:
         if path == parent:
